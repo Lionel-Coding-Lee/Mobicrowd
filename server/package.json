@@ -1,0 +1,16 @@
+{
+  "name": "mobicrowd",
+  "version": "0.0.0",
+  "main": "server/app.js",
+  "dependencies": {
+    "express": "~4.0.0",
+    "q": "~1.0.1",
+    "body-parser": "~1.9.0",
+    "express-session": "~1.8.2",
+    "socket.io": "~1.2.1"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "private": true
+}

@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+	<head>
+		<title>MobiCrowd</title>
+		<script type="text/javascript">
+		var socket;
+		function BuildMap(zr, w, h){
+			var Rectangle = require('zrender/shape/Rectangle');
+	    	zr.addShape(
+	    		new Rectangle({
+
+	    			//zlevel = 0;
+
+	    			style: {
+        				x: 0,
+        				y: 0,
+        				width: w,
+        				height: h,
+        				radius: 20,
+        				text : '所规定的区域',
+        				textColor : 'rgba(255, 255, 255, 0.8)',
+        				textFront : 'bold 18px verdana',
+        				textPosition : 'center',
+        				color : 'rgba(0, 30, 60, 0.8)',
+        				
+    				},
+    				clickable : true,
+    				onclick : function() {
+    					this.drawText();
+    				}
+	    		})
+	    	);
+
+		}
+		
+		function BuildBuilding(zr, buildings)
+		{
+			for (var i = buildings.length - 1; i >= 0; i--) {
+				var building = buildings[i];
+
+/*				var CircleShape = require('zrender/shape/Circle');
+				var circle = new CircleShape({
+    				style: {
+        			id : building.id,
+        			x : building.x,
+        			y : building.y,
+        			r : building.r,
+
+        			color : 'rgba(150, 20, 150, 0.8)'
+    				},
+    				clickable : true
+				});
+				zr.addShape(circle);
+*/
+				var ImageShape = require('zrender/shape/Image');
+				var image = new ImageShape({
+    			style: {
+        			image: 'house.jpg',
+        			x: building.x,
+        			y: building.y
+    				}
+				});
+				zr.addShape(image);
+			};
+		}
+
+		function BuildAgents(zr, agents)
+		{
+			for (var i = 0; i <= agents.length - 1; i++) {
+				var agent = agents[i];
+
+				var CircleShape = require('zrender/shape/Circle');
+				zr.addShape(
+					new CircleShape({
+						
+						//zlevel = 0;
+
+						style : {
+							id : agent.id,
+            				x : 50 + agent.x,
+            				y : 50 + agent.y,
+            				r : agent.r,
+            			
+            			color : 'rgba(220, 100, 20, 0.8)'
+						},
+						//circle是可点击的，点击之后服务器接收agent的id，然后此agent的半径变大一倍
+						//此处emit报错
+						clickable: true,
+						onclick: function()
+			    		{
+			    			//socketio = require('/socket.io/socket.io');
+			    			//var socket = socketio.content('/');
+			    			var agentID = id;
+
+			    			//if(id == null)
+			    			//	alert("null");
+			    			//alert(id);
+			    			socket.emit("clickID", agentID);                 
+
+			    		}
+						
+					})
+				)
+
+			}
+		};
+</script>
+	</head>
+	<body>
+		<div id="main"></div>
+		<div id="userPanel"></div>
+		<!--
+		<input id="inputArea" type="text">
+		-->
+		<style type="text/css">
+		*
+		{
+			margin: 0;
+			padding: 0；
+		}
+		#main
+		{
+			background-color: white;
+			color: purple;
+			position: absolute;
+			font-size: 20pt;
+		}
+		
+
+		</style>
+		<script type="text/javascript" src="bower_components/requirejs/require.js"></script>
+		<script type="text/javascript">
+		requirejs.config({
+		    baseUrl: 'bower_components',
+		    paths: {
+		      jquery: 'jquery/dist/jquery',
+		      socketio: "/socket.io/socket.io"
+		    },
+	        packages: [
+	            {
+	                name: 'zrender',
+	                location: 'zrender/src',
+	                main: 'zrender'
+	            }
+	        ]
+		});
+		require(['jquery', 'socketio', 'zrender', 'zrender/shape/Circle'], function($, io, zrender, Circle)
+		{
+			var main = document.getElementById('main');
+    		var w = window.innerWidth;
+    		var h = window.innerHeight;
+    		//w = w * 0.8;
+    		h = h * 0.8;
+		    main.style.width = w + 'px';
+		    main.style.height = h + 'px';
+
+		    var userPanel = document.getElementById('userPanel');
+
+
+	    	var zr = zrender.init(main);
+	    	
+	    
+      		socket = io.connect('/');
+
+			function pushAgents(agents)
+			{
+				BuildAgents(zr, agents);
+				zr.render();
+				//$("#screen").append("<div>" + content + "</div>");
+			}
+			function pushMap(map)
+			{
+				w = map.width;
+				h = map.height;
+				BuildMap(zr, w, h);
+				zr.render();
+			}
+			function pushBuildings(buildings)
+			{
+				BuildBuilding(zr, buildings);
+				zr.render();
+			}
+        	// Now we can listen for that event
+        	socket.on('map', function(map)
+        	{
+        		pushMap(map, socket);
+        	});
+      		socket.on('agents', function(agents) 
+      		{
+      			pushAgents(agents);
+      		});
+      		socket.on('buildings', function(buildings)
+      		{
+      			pushBuildings(buildings);
+      		});
+			zr.render();
+		});
+	</script>
+
+
+	</body>
+</html>

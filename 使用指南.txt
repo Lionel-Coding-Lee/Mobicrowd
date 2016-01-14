@@ -1,0 +1,12 @@
+﻿1、通过npm可以安装需要的软件包，例如
+npm install socket.io
+
+
+2、通过package.json可以规定自己的应用名称，以及依赖软件包的名称和版本，定以后
+可以通过npm update直接完成对应包得安装；
+
+
+3、在server目录运行node server.js运行服务器，服务器默认占用80端口
+
+
+4、在site目录执行bower update即可安装前端依赖包
